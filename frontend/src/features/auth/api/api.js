@@ -1,8 +1,11 @@
 // services/axios.js
 import axios from 'axios';
 
+// Use environment variable for API URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
+
 const api = axios.create({
-    baseURL: 'http://localhost:3000/api/auth',
+    baseURL: API_BASE_URL,
     withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
