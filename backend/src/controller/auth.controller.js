@@ -5,6 +5,8 @@ const blacklistModel = require('../models/blacklist.model');
 
 /**
  * @desc Register a new user
+ * @route POST /api/auth/register
+ * @access Public
  */
 const register = async(req, res) => {
     try {
@@ -134,6 +136,76 @@ const login = async(req, res) => {
     }
 };
 
-// ... rest of the file remains the same (logout, getMe)
+/**
+ * @desc Logout a user
+ * @route POST /api/auth/logout
+ * @access Public
+ */
+const logout = async(req, res) => {
+    try {
+        console.log('Logout - Received cookies:', req.cookies);
+        const token = req.cookies.token;
+        
+        if (!token) {
+            console.log('Logout - No token found in cookies');
+            return res.status(400).json({ message: 'No token provided' });
+        }
+        
+        console.log('Logout - Token found, blacklisting...');
+        
+        // Add the token to the blacklist
+        const blacklistedToken = new blacklistModel({ token });
+        await blacklistedToken.save();
+        
+        console.log('Logout - Token blacklisted successfully');
+        
+        // Clear the token cookie - MUST MATCH THE SETTINGS USED IN LOGIN/REGISTER
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: true,
+            sameSite: "none",
+            path: "/"
+        });
+        
+        console.log('Logout - Cookie cleared');
+        res.status(200).json({ message: 'Logout successful' });
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({ message: 'Error logging out', error: error.message });
+    }
+}
+
+/**
+ * @route GET /api/auth/get-me
+ * @desc Get the authenticated user's information
+ * @access Private
+ */
+const getMe = async(req, res) => {
+    try {
+        console.log('GetMe called - User from middleware:', req.user);
+        
+        if (!req.user || !req.user.id) {
+            return res.status(401).json({ message: 'Not authenticated' });
+        }
+        
+        const user = await userModel.findById(req.user.id);
+        
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        
+        res.status(200).json({
+            message: 'User information retrieved successfully',
+            user: {
+                id: user._id,
+                username: user.username,
+                email: user.email
+            }
+        });
+    } catch (error) {
+        console.error('GetMe error:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};
 
 module.exports = { register, login, logout, getMe };
