@@ -70,8 +70,8 @@ app.get('/', (req, res) => {
 const authRouter = require('./routes/auth.route');
 const interviewRouter = require('./routes/interview.route');
 
-app.use('/api', authRouter);
-app.use('/api', interviewRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/interview', interviewRouter);
 
 // 404 handler
 app.use((req, res) => {
