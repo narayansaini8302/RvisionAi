@@ -8,19 +8,24 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const MODEL_CONFIGS = [
     { 
-        name: "gemini-1.5-flash",  // ✅ WORKING - Fast, free, good quality
+        name: "gemini-2.5-flash",  // ✅ Current default - fast, good quality
         priority: 1, 
-        displayName: "Gemini 1.5 Flash"
+        displayName: "Gemini 2.5 Flash"
     },
     { 
-        name: "gemini-1.5-flash-8b",  // ✅ WORKING - Very fast, smaller
+        name: "gemini-2.5-flash-lite",  // ✅ Ultra low-cost, high throughput
         priority: 2, 
-        displayName: "Gemini 1.5 Flash-8B"
+        displayName: "Gemini 2.5 Flash-Lite"
     },
     { 
-        name: "gemini-1.5-pro",  // ✅ WORKING - Most capable (has rate limits)
+        name: "gemini-2.0-flash",  // ✅ Legacy but still working
         priority: 3, 
-        displayName: "Gemini 1.5 Pro"
+        displayName: "Gemini 2.0 Flash"
+    },
+    { 
+        name: "gemini-2.0-flash-lite",  // ✅ Legacy cheap model
+        priority: 4, 
+        displayName: "Gemini 2.0 Flash-Lite"
     }
 ];
 
@@ -169,18 +174,9 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
             console.log(`\n🚀 Attempting with ${modelConfig.displayName} (Priority: ${modelConfig.priority})`);
             
             // 🔑 CRITICAL FIX 1: Add apiVersion: "v1"
-            const model = genAI.getGenerativeModel(
-                {
-                    model: modelConfig.name,
-                    generationConfig: {
-                        temperature: 0.7,
-                        maxOutputTokens: 8192,
-                        topP: 0.95,
-                        topK: 40,
-                    }
-                },
-                { apiVersion: "v1" }  // ← THIS FIXES THE 404 ERROR
-            );
+          const model = genAI.getGenerativeModel({ 
+    model: modelConfig.name 
+});
 
             const prompt = buildInterviewPrompt({ resume, selfDescription, jobDescription });
             
