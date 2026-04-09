@@ -1,5 +1,6 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
-const { chromium } = require("playwright");
+const puppeteer = require("puppeteer-core");
+const chromium = require("@sparticuz/chromium");
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -41,7 +42,7 @@ async function callWithRetry(fn, attempts = 3, delay = 1000) {
                 throw lastError;
             }
             
-            const waitTime = delay * Math.pow(2, i - 1); // Exponential backoff
+            const waitTime = delay * Math.pow(2, i - 1);
             console.log(`⏳ Waiting ${waitTime}ms before retry...`);
             await new Promise(r => setTimeout(r, waitTime));
         }
@@ -54,16 +55,12 @@ function safeJSONParse(text, fallback = null) {
     if (!text) return fallback;
     
     try {
-        // Try to extract JSON from markdown code blocks or raw text
         let jsonStr = text;
-        
-        // Remove markdown code blocks if present
         const codeBlockMatch = text.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
         if (codeBlockMatch) {
             jsonStr = codeBlockMatch[1];
         }
         
-        // Find the first { and last }
         const firstBrace = jsonStr.indexOf('{');
         const lastBrace = jsonStr.lastIndexOf('}');
         
@@ -192,7 +189,6 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
             const parsed = safeJSONParse(text);
             
             if (parsed && Object.keys(parsed).length > 0) {
-                // Validate and enhance the parsed data
                 const enhanced = {
                     matchScore: parsed.matchScore || 75,
                     title: parsed.title || "Interview Preparation Report",
@@ -651,24 +647,20 @@ function getFallbackHtmlTemplate({ resume, selfDescription, jobDescription }) {
 </html>`;
 }
 
-/* -------------------- PDF GENERATION WITH PLAYWRIGHT -------------------- */
+/* -------------------- PDF GENERATION WITH @sparticuz/chromium (FIXED FOR RENDER) -------------------- */
 
 async function generatePdfFromHtml(html) {
     let browser = null;
     
     try {
-        console.log("📄 Generating PDF with Playwright...");
+        console.log("📄 Generating PDF with @sparticuz/chromium...");
         
-        // Launch browser with optimized settings
-        browser = await chromium.launch({
-            headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-gpu',
-                '--disable-software-rasterizer'
-            ]
+        // Launch browser with serverless-optimized settings
+        browser = await puppeteer.launch({
+            args: chromium.args,
+            defaultViewport: chromium.defaultViewport,
+            executablePath: await chromium.executablePath(),
+            headless: chromium.headless,
         });
         
         const page = await browser.newPage();
@@ -705,27 +697,9 @@ async function generatePdfFromHtml(html) {
     } catch (err) {
         console.error("❌ PDF generation failed:", err.message);
         
-        // Create a simple error PDF
-        const errorHtml = `
-        <!DOCTYPE html>
-        <html>
-        <head><meta charset="UTF-8"><title>PDF Generation Error</title></head>
-        <body style="font-family: Arial, sans-serif; padding: 40px;">
-            <h1>PDF Generation Failed</h1>
-            <p>Error: ${err.message}</p>
-            <p>Please try again later or contact support.</p>
-            <hr>
-            <small>Generated at: ${new Date().toISOString()}</small>
-        </body>
-        </html>`;
-        
-        const fallbackBrowser = await chromium.launch({ headless: true });
-        const fallbackPage = await fallbackBrowser.newPage();
-        await fallbackPage.setContent(errorHtml);
-        const errorPdf = await fallbackPage.pdf({ format: 'A4' });
-        await fallbackBrowser.close();
-        
-        return errorPdf;
+        // Create a simple text fallback (no browser needed)
+        const textFallback = `PDF Generation Error\n\n${err.message}\n\nPlease try again later.`;
+        return Buffer.from(textFallback);
         
     } finally {
         if (browser) {
@@ -756,11 +730,9 @@ async function generateResumePdf({ resume, selfDescription, jobDescription }) {
     } catch (err) {
         console.error("❌ Resume PDF generation failed:", err.message);
         
-        // Ultimate fallback - create a very simple PDF
-        const simpleHtml = getFallbackHtmlTemplate({ resume, selfDescription, jobDescription });
-        const fallbackPdf = await generatePdfFromHtml(simpleHtml);
-        
-        return fallbackPdf;
+        // Ultimate fallback - return error as text buffer
+        const errorText = `Resume Generation Failed\n\nError: ${err.message}\n\nPlease try again later.`;
+        return Buffer.from(errorText);
     }
 }
 
