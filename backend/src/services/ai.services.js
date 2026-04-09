@@ -6,11 +6,21 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 /* -------------------- MODEL CONFIG WITH PRIORITY -------------------- */
 
 const MODEL_CONFIGS = [
-    { name: "models/gemini-flash-latest", priority: 1, displayName: "Gemini latest" },
-    { name: "models/gemini-2.0-flash-exp", priority: 2, displayName: "Gemini 2.0 Flash" },
-    { name: "models/gemini-1.5-flash", priority: 3, displayName: "Gemini 1.5 Flash" },
-    { name: "models/gemini-1.5-pro", priority: 4, displayName: "Gemini 1.5 Pro" },
-    { name: "models/gemini-pro", priority: 5, displayName: "Gemini Pro" }
+    { 
+        name: "gemini-1.5-flash",  // ✅ WORKING - Fast, free, good quality
+        priority: 1, 
+        displayName: "Gemini 1.5 Flash"
+    },
+    { 
+        name: "gemini-1.5-flash-8b",  // ✅ WORKING - Very fast, smaller
+        priority: 2, 
+        displayName: "Gemini 1.5 Flash-8B"
+    },
+    { 
+        name: "gemini-1.5-pro",  // ✅ WORKING - Most capable (has rate limits)
+        priority: 3, 
+        displayName: "Gemini 1.5 Pro"
+    }
 ];
 
 /* -------------------- RETRY MECHANISM -------------------- */
