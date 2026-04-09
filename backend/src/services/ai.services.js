@@ -168,15 +168,19 @@ async function generateInterviewReport({ resume, selfDescription, jobDescription
         try {
             console.log(`\n🚀 Attempting with ${modelConfig.displayName} (Priority: ${modelConfig.priority})`);
             
-            const model = genAI.getGenerativeModel({
-                model: modelConfig.name,
-                generationConfig: {
-                    temperature: 0.7,
-                    maxOutputTokens: 8192,
-                    topP: 0.95,
-                    topK: 40,
-                }
-            });
+            // 🔑 CRITICAL FIX 1: Add apiVersion: "v1"
+            const model = genAI.getGenerativeModel(
+                {
+                    model: modelConfig.name,
+                    generationConfig: {
+                        temperature: 0.7,
+                        maxOutputTokens: 8192,
+                        topP: 0.95,
+                        topK: 40,
+                    }
+                },
+                { apiVersion: "v1" }  // ← THIS FIXES THE 404 ERROR
+            );
 
             const prompt = buildInterviewPrompt({ resume, selfDescription, jobDescription });
             
@@ -383,13 +387,17 @@ async function generateResumeHtml({ resume, selfDescription, jobDescription }) {
         try {
             console.log(`🚀 Generating HTML with ${modelConfig.displayName}...`);
             
-            const model = genAI.getGenerativeModel({
-                model: modelConfig.name,
-                generationConfig: {
-                    temperature: 0.4,
-                    maxOutputTokens: 8192,
-                }
-            });
+            // 🔑 CRITICAL FIX 1: Add apiVersion: "v1"
+            const model = genAI.getGenerativeModel(
+                {
+                    model: modelConfig.name,
+                    generationConfig: {
+                        temperature: 0.4,
+                        maxOutputTokens: 8192,
+                    }
+                },
+                { apiVersion: "v1" }  // ← THIS FIXES THE 404 ERROR
+            );
 
             const prompt = `Create a professional, ATS-friendly HTML resume. Return ONLY valid JSON: {"html": "full html content"}
 
@@ -665,8 +673,8 @@ async function generatePdfFromHtml(html) {
         
         const page = await browser.newPage();
         
-        // Set viewport for consistent rendering
-        await page.setViewportSize({
+        // 🔑 CRITICAL FIX 2: Use setViewport (not setViewportSize)
+        await page.setViewport({
             width: 1200,
             height: 1600
         });
