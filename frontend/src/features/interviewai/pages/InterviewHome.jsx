@@ -461,7 +461,7 @@ const InterviewHome = () => {
                             >
                                 <div className="w-6 h-6 rounded-full bg-gradient-to-r from-[#715A5A] to-[#5a4848] flex items-center justify-center text-white text-xs">AI</div>
                             </motion.div>
-                            <span>AI-Powered Strategy Generation • ~30 seconds</span>
+                            <span>AI-Powered Strategy Generation • ~60 seconds</span>
                         </div>
                         <motion.button
                             variants={buttonVariants}

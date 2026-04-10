@@ -53,7 +53,7 @@ const Login = () => {
     }
     
     if (loading) {
-        return <Loading fullScreen size='xl' />;
+        return <Loading fullScreen/>;
     }
 
     // Animation variants

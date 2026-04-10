@@ -298,8 +298,6 @@ const Hero = () => {
                         {[
                             { icon: FaCheckCircle, text: "ATS Optimized", color: "#715A5A" },
                             { icon: FaChartLine, text: "95% Success Rate", color: "#715A5A" },
-                            { icon: FaClipboardList, text: "1000+ Questions", color: "#715A5A" },
-                            { icon: FaStar, text: "15k+ Users", color: "#715A5A" }
                         ].map((stat, index) => (
                             <motion.div
                                 key={index}
@@ -355,63 +353,7 @@ const Hero = () => {
                             </Link>
                         </motion.div>
                         
-                        <motion.button
-                            variants={buttonVariants}
-                            whileHover="hover"
-                            whileTap="tap"
-                            onClick={handleGenerateResume}
-                            className="group px-8 py-4 bg-transparent border-2 border-[#715A5A] text-[#715A5A] rounded-xl font-semibold text-lg inline-flex items-center gap-3"
-                        >
-                            <motion.div
-                                whileHover={{ scale: 1.2 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <FaBrain className="w-5 h-5" />
-                            </motion.div>
-                            AI Analysis
-                            <motion.div
-                                whileHover={{ x: 5 }}
-                                transition={{ duration: 0.2 }}
-                            >
-                                <FaArrowRight className="w-4 h-4" />
-                            </motion.div>
-                        </motion.button>
-                    </motion.div>
-                    
-                    {/* Trust Indicators with Logos */}
-                    <motion.div 
-                        variants={containerVariants}
-                        className="pt-8 border-t border-[#715A5A]/20"
-                    >
-                        <motion.p 
-                            variants={itemVariants}
-                            className="text-[#44444E]/60 text-sm mb-6 font-medium"
-                        >
-                            Trusted by professionals from
-                        </motion.p>
-                        <motion.div 
-                            variants={containerVariants}
-                            className="flex flex-wrap justify-center gap-10"
-                        >
-                            {['Google', 'Microsoft', 'Amazon', 'Meta', 'Apple', 'Netflix'].map((company, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    variants={companyVariants}
-                                    whileHover="hover"
-                                    className="relative group"
-                                >
-                                    <span className="text-[#44444E] font-semibold opacity-60 group-hover:opacity-100 transition-all duration-300 cursor-pointer">
-                                        {company}
-                                    </span>
-                                    <motion.div
-                                        initial={{ width: 0 }}
-                                        whileHover={{ width: "100%" }}
-                                        transition={{ duration: 0.3 }}
-                                        className="absolute -bottom-1 left-0 h-0.5 bg-gradient-to-r from-[#715A5A] to-[#9b7b7b]"
-                                    />
-                                </motion.div>
-                            ))}
-                        </motion.div>
+                        
                     </motion.div>
                 </motion.div>
             </div>

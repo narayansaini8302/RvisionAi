@@ -8,6 +8,7 @@ const Navbar = ({ onLoginClick, onRegisterClick }) => {
     const navigate = useNavigate();
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
     // Handle scroll effect
     useEffect(() => {
@@ -18,10 +19,26 @@ const Navbar = ({ onLoginClick, onRegisterClick }) => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    // Auto-hide popup after 3 seconds
+    useEffect(() => {
+        if (showLogoutPopup) {
+            const timer = setTimeout(() => {
+                setShowLogoutPopup(false);
+            }, 3000);
+            return () => clearTimeout(timer);
+        }
+    }, [showLogoutPopup]);
+
     const handleLogout = async () => {
-        await handlelogout();
-        navigate("/");
-        setIsMobileMenuOpen(false);
+        try {
+            await handlelogout();
+            setShowLogoutPopup(true);
+            navigate("/");
+            setIsMobileMenuOpen(false);
+        } catch (error) {
+            console.error("Logout failed:", error);
+            // You can also show an error popup here if needed
+        }
     };
 
     // Navigation handlers
@@ -37,10 +54,10 @@ const Navbar = ({ onLoginClick, onRegisterClick }) => {
 
     const navLinks = [
         { name: "Home", path: "/" },
-        { name: "About", path: "/about" },
-        { name: "Features", path: "/features" },
-        { name: "Pricing", path: "/pricing" },
-        { name: "Contact", path: "/contact" },
+        { name: "About", path: "/" },
+        { name: "Features", path: "/" },
+        { name: "Pricing", path: "/" },
+        { name: "Contact", path: "/" },
     ];
 
     // Animation variants
@@ -131,8 +148,77 @@ const Navbar = ({ onLoginClick, onRegisterClick }) => {
         }
     };
 
+    const popupVariants = {
+        hidden: { 
+            opacity: 0, 
+            y: -50,
+            scale: 0.8
+        },
+        visible: { 
+            opacity: 1, 
+            y: 0,
+            scale: 1,
+            transition: {
+                type: "spring",
+                stiffness: 300,
+                damping: 20
+            }
+        },
+        exit: { 
+            opacity: 0, 
+            y: -50,
+            scale: 0.8,
+            transition: { duration: 0.2 }
+        }
+    };
+
     return (
         <>
+            {/* Logout Success Popup */}
+            <AnimatePresence>
+                {showLogoutPopup && (
+                    <motion.div
+                        variants={popupVariants}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        className="fixed top-20 left-1/2 transform -translate-x-1/2 z-[60]"
+                    >
+                        <div className="flex items-center space-x-3 px-6 py-3 rounded-xl shadow-2xl"
+                            style={{
+                                background: "linear-gradient(135deg, #4CAF50 0%, #45a049 100%)",
+                                color: "white",
+                                border: "1px solid rgba(255,255,255,0.2)",
+                            }}
+                        >
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ type: "spring", stiffness: 500, damping: 15 }}
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                </svg>
+                            </motion.div>
+                            <div>
+                                <p className="font-semibold">Logout Successful!</p>
+                                <p className="text-sm opacity-90">You have been logged out successfully.</p>
+                            </div>
+                            <motion.button
+                                whileHover={{ scale: 1.1 }}
+                                whileTap={{ scale: 0.9 }}
+                                onClick={() => setShowLogoutPopup(false)}
+                                className="ml-4 text-white/80 hover:text-white"
+                            >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </motion.button>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <motion.nav
                 variants={navVariants}
                 initial="hidden"
@@ -313,7 +399,7 @@ const Navbar = ({ onLoginClick, onRegisterClick }) => {
                                         <span className="relative z-10">Login</span>
                                     </motion.button>
                                     
-                                    <motion.button
+                                    {/* <motion.button
                                         variants={buttonVariants}
                                         initial="initial"
                                         animate="animate"
@@ -334,7 +420,7 @@ const Navbar = ({ onLoginClick, onRegisterClick }) => {
                                             transition={{ duration: 0.3 }}
                                             className="absolute inset-0 bg-white/20"
                                         />
-                                    </motion.button>
+                                    </motion.button> */}
                                 </>
                             )}
                         </div>
@@ -479,19 +565,7 @@ const Navbar = ({ onLoginClick, onRegisterClick }) => {
                                                 Login
                                             </motion.button>
                                             
-                                            <motion.button
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                                onClick={handleRegisterClick}
-                                                className="w-full px-4 py-3 rounded-xl font-semibold transition-all duration-300"
-                                                style={{
-                                                    background: "linear-gradient(135deg, #715A5A 0%, #5a4848 100%)",
-                                                    color: "#ffffff",
-                                                    boxShadow: "0 4px 15px rgba(113, 90, 90, 0.3)",
-                                                }}
-                                            >
-                                                Sign Up
-                                            </motion.button>
+                                            
                                         </>
                                     )}
                                 </motion.div>
